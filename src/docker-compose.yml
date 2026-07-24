@@ -23,6 +23,8 @@ services:
       - PLEX_GID=100
       - TZ=Europe/Warsaw
       - VERSION=docker
+      - NVIDIA_VISIBLE_DEVICES=all
+      - NVIDIA_DRIVER_CAPABILITIES=all
       - PLEX_CLAIM=${PLEX_CLAIM:?err}
       - ADVERTISE_IP=https://${PLEX_DOMAIN:?err}:443/
     tmpfs:
