@@ -1,0 +1,98 @@
+services:
+  plex:
+    image: plexinc/pms-docker:plexpass
+    container_name: plex
+    hostname: plex.ctr.xbhl.intranet
+    networks:
+      - proxy
+    ports:
+      # Plex Media Server
+      - "32400:32400/tcp"
+      # Plex Companion
+      - "8324:8324/tcp"
+      # Plex DLNA Server
+      - "32469:32469/tcp"
+      - "1900:1900/udp"
+      # GDM (Local network discovery)
+      - "32410:32410/udp"
+      - "32412:32412/udp"
+      - "32413:32413/udp"
+      - "32414:32414/udp"
+    environment:
+      - PLEX_UID=1000
+      - PLEX_GID=100
+      - TZ=Europe/Warsaw
+      - VERSION=docker
+      - PLEX_CLAIM=${PLEX_CLAIM:?err}
+      - ADVERTISE_IP=https://${PLEX_DOMAIN:?err}:443/
+    tmpfs:
+      - /transcode:rw,size=16G
+    volumes:
+      - config:/config
+      - torrent:/torrent
+      - movies:/multimedia/movies
+      - tv:/multimedia/tv
+      - music:/multimedia/music
+      - photos:/multimedia/photos
+      - other:/multimedia/other
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [gpu]
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.plex-router.rule=Host(`${PLEX_DOMAIN:?err}`)"
+      - "traefik.http.routers.plex-router.entrypoints=websecure"
+      - "traefik.http.routers.plex-router.tls=true"
+      - "traefik.http.routers.plex-router.service=plex"
+      - "traefik.http.services.plex.loadbalancer.server.port=32400"
+      - "traefik.docker.network=proxy"
+    restart: unless-stopped
+
+volumes:
+  config:
+    driver: local
+
+  torrent:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: /share/Media/Torrent
+  movies:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: /share/Media/Movies
+  tv:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: /share/Media/TV
+  music:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: /share/Media/Music
+  photos:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: /share/Media/Photos
+  other:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: /share/Media/Other
+
+networks:
+  proxy:
+    external: true
