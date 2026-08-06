@@ -1,15 +1,5 @@
-stages:
-  - .pre
-  - test
-  - deploy
-  - verify
-  - .post
-
-variables:
-  PLEX_DOMAIN: "plex.intranet.xbhl.online"
-
 include:
-  - component: $CI_SERVER_FQDN/home-lab/automations/docker-compose-service-deployment@v2.0.3
+  - component: $CI_SERVER_FQDN/home-lab/automations/docker-compose-service-deployment@v2.0.4
     inputs:
       vm-hostname: nas.srv.xbhl.intranet
       vm-ssh-username: $SSH_USER
@@ -17,7 +7,7 @@ include:
       service-name: plex
       container-name: plex
       container-location: /share/Container/services/plex
-      cloudflare-dns-entry-name: $PLEX_DOMAIN
+      cloudflare-dns-entry-name: plex.intranet.xbhl.online
       cloudflare-zone-id: $CLOUDFLARE_ZONE_ID
       cloudflare-dns-api-token: $CLOUDFLARE_DNS_API_TOKEN
       container-healthcheck-delay: 300
@@ -27,7 +17,7 @@ setup:generate-build-artifacts:
   script:
     - cp src/.env $BUILD_ARTIFACTS_DIR
     - sed -i "s|^PLEX_CLAIM=.*|PLEX_CLAIM=${PLEX_CLAIM}|" $BUILD_ARTIFACTS_DIR/.env
-    - sed -i "s|^PLEX_DOMAIN=.*|PLEX_DOMAIN=${PLEX_DOMAIN}|" $BUILD_ARTIFACTS_DIR/.env
+    - sed -i "s|^PLEX_DOMAIN=.*|PLEX_DOMAIN=${SERVICE_HOSTNAME}|" $BUILD_ARTIFACTS_DIR/.env
 
 test:plex:docker-compose:
   script:
