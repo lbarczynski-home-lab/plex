@@ -1,6 +1,6 @@
 services:
   plex:
-    image: plexinc/pms-docker:plexpass
+    image: plexinc/pms-docker:1.43.3.10861-07dfddaeb-amd64
     container_name: plex
     hostname: plex.ctr.xbhl.intranet
     networks:
@@ -43,7 +43,7 @@ services:
           devices:
             - driver: nvidia
               count: 1
-              capabilities: [gpu]
+              capabilities: [ gpu ]
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.plex-router.rule=Host(`${PLEX_DOMAIN:?err}`)"
