@@ -52,6 +52,9 @@ services:
       - "traefik.http.routers.plex-router.service=plex"
       - "traefik.http.services.plex.loadbalancer.server.port=32400"
       - "traefik.docker.network=proxy"
+      - 'wud.watch=true'
+      - 'wud.tag.include=^\d+\.\d+\.\d+\.\d+-[a-f0-9]+-amd64$$'
+      - "wud.link.template=https://forums.plex.tv/t/plex-media-server/30447/last"
     restart: unless-stopped
 
 volumes:
