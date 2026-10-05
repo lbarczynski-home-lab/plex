@@ -1,5 +1,5 @@
 include:
-  - component: $CI_SERVER_FQDN/home-lab/automations/docker-compose-service-deployment@v2.0.4
+  - component: $CI_SERVER_FQDN/home-lab/automations/docker-compose-service-deployment@v2.0.8
     inputs:
       vm-hostname: nas.srv.xbhl.intranet
       vm-ssh-username: $SSH_USER
@@ -7,6 +7,7 @@ include:
       service-name: plex
       container-name: plex
       container-location: /share/Container/services/plex
+      cloudflare-dns-strategy: "direct"
       cloudflare-dns-entry-name: plex.intranet.xbhl.online
       cloudflare-zone-id: $CLOUDFLARE_ZONE_ID
       cloudflare-dns-api-token: $CLOUDFLARE_DNS_API_TOKEN
