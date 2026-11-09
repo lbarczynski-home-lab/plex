@@ -31,6 +31,8 @@ services:
       - /transcode:rw,size=16G
     volumes:
       - config:/config
+      - ./profiles/tvOS.xml:/usr/lib/plexmediaserver/Resources/Profiles/tvOS.xml:ro
+      - ./profiles/iOS.xml:/usr/lib/plexmediaserver/Resources/Profiles/iOS.xml:ro
       - torrent:/torrent
       - movies:/multimedia/movies
       - tv:/multimedia/tv

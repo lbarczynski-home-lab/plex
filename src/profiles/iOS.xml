@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Client name="iOS">
+  <Settings>
+    <Setting name="DirectPlayStreamSelection" value="true" />
+    <Setting name="StreamUnselectedIncompatibleAudioStreams" value="true" />
+  </Settings>
+
+  <TranscodeTargets>
+    <VideoProfile container="mp4" codec="h264" audioCodec="aac" subtitleCodec="mov_text" context="static" />
+    <VideoProfile protocol="hls" container="mpegts" codec="h264" audioCodec="aac,mp3" subtitleCodec="eia_608_embedded" context="streaming">
+      <Setting name="HlsExtraMultiChannelAudioStream" value="ac3" />
+    </VideoProfile>
+    <MusicProfile container="mp3" codec="mp3" />
+    <PhotoProfile container="jpeg" />
+  </TranscodeTargets>
+
+  <DirectPlayProfiles>
+    <MusicProfile container="mp3" codec="mp3" />
+    <MusicProfile container="mp4" codec="aac,alac" />
+    <MusicProfile container="flac" codec="flac" />
+    <MusicProfile container="aiff" codec="pcm" />
+    <MusicProfile container="wav" codec="pcm" />
+    <MusicProfile container="au" codec="pcm" />
+    <MusicProfile container="caf" codec="aac,alac,pcm" />
+    <PhotoProfile container="heic" />
+    <PhotoProfile container="heif" />
+    <PhotoProfile container="jpeg" />
+    <PhotoProfile container="png" />
+    <PhotoProfile container="gif" />
+    <PhotoProfile container="tiff" />
+  </DirectPlayProfiles>
+</Client>
