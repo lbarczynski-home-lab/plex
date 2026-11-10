@@ -49,7 +49,11 @@ services:
       - "traefik.http.routers.plex-router.rule=Host(`${PLEX_DOMAIN:?err}`)"
       - "traefik.http.routers.plex-router.entrypoints=websecure"
       - "traefik.http.routers.plex-router.tls=true"
+      - "traefik.http.routers.plex-router.middlewares=plex-force-transcode"
       - "traefik.http.routers.plex-router.service=plex"
+      - "traefik.http.middlewares.plex-force-transcode.plugin.query-modification.type=modify"
+      - 'traefik.http.middlewares.plex-force-transcode.plugin.query-modification.paramNameRegex=^(directPlay|directStream)$$'
+      - "traefik.http.middlewares.plex-force-transcode.plugin.query-modification.newValue=0"
       - "traefik.http.services.plex.loadbalancer.server.port=32400"
       - "traefik.docker.network=proxy"
       - 'wud.watch=true'
