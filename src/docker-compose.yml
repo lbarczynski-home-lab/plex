@@ -28,7 +28,7 @@ services:
       - PLEX_CLAIM=${PLEX_CLAIM:?err}
       - ADVERTISE_IP=https://${PLEX_DOMAIN:?err}:443/
     tmpfs:
-      - /transcode:rw,size=16G
+      - /transcode:rw,size=16G,mode=1777
     volumes:
       - config:/config
       - torrent:/torrent
