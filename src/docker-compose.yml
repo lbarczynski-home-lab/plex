@@ -40,11 +40,10 @@ services:
       - "traefik.http.routers.plex-transcode-router.rule=Host(`${PLEX_DOMAIN:?err}`) && (PathPrefix(`/video/:/transcode/universal/decision`) || PathPrefix(`/video/:/transcode/universal/start`))"
       - "traefik.http.routers.plex-transcode-router.entrypoints=websecure"
       - "traefik.http.routers.plex-transcode-router.tls=true"
-      - "traefik.http.routers.plex-transcode-router.middlewares=plex-strip-profile-header,plex-strip-transcode-params,plex-force-direct-play,plex-force-direct-stream"
+      - "traefik.http.routers.plex-transcode-router.middlewares=plex-strip-transcode-params,plex-force-direct-play,plex-force-direct-stream"
       - "traefik.http.routers.plex-transcode-router.service=plex"
-      - "traefik.http.middlewares.plex-strip-profile-header.headers.customRequestHeaders.X-Plex-Client-Profile-Extra="
       - "traefik.http.middlewares.plex-strip-transcode-params.plugin.query-modification.type=delete"
-      - 'traefik.http.middlewares.plex-strip-transcode-params.plugin.query-modification.paramNameRegex=^(directPlay|directStream|X-Plex-Client-Profile-Extra)$$'
+      - 'traefik.http.middlewares.plex-strip-transcode-params.plugin.query-modification.paramNameRegex=^(directPlay|directStream)$$'
       - "traefik.http.middlewares.plex-force-direct-play.plugin.query-modification.type=add"
       - "traefik.http.middlewares.plex-force-direct-play.plugin.query-modification.paramName=directPlay"
       - "traefik.http.middlewares.plex-force-direct-play.plugin.query-modification.newValue=0"
