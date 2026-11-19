@@ -10,7 +10,7 @@ Central media streaming server for the homelab, running directly on the QNAP NAS
 | :--- | :--- |
 | **Domain** | `https://plex.intranet.xbhl.online` |
 | **Node** | `nas.srv.xbhl.intranet` (QNAP NAS bare-metal host) |
-| **Ingress** | Exclusive Traefik TLS reverse proxy (`plex-router` + `plex-force-transcode` + `plex-force-sidecar-subtitles`); no host ports exposed |
+| **Ingress** | Exclusive Traefik TLS reverse proxy (`plex-router` + `plex-force-transcode` + `plex-force-auto-subtitles`); no host ports exposed |
 | **Authentication** | Native Plex.tv account & token auth (Authelia omitted for client compatibility) |
 | **Ecosystem** | Seerr & `*arr` library consumer, Homepage (`Media` tile & widget), WUD |
 
@@ -20,11 +20,11 @@ Central media streaming server for the homelab, running directly on the QNAP NAS
 flowchart LR
     Clients["Web, Mobile & Apple TV Clients"] -->|"HTTPS :443"| Traefik["Traefik Reverse Proxy"]
     Ecosystem["Seerr / Radarr / Sonarr & Homepage"] -->|"HTTPS :443"| Traefik
-    Traefik -->|"modify only when present: directPlay/directStream=0, subtitles=sidecar"| Plex["Plex Media Server (nas.srv.xbhl.intranet + NVIDIA GPU)"]
+    Traefik -->|"modify only when present: directPlay/directStream=0, subtitles=auto"| Plex["Plex Media Server (nas.srv.xbhl.intranet + NVIDIA GPU)"]
 ```
 
 - **QNAP NAS Co-Location & GPU Transcoding**: Deployed directly on `nas.srv.xbhl.intranet` rather than a Proxmox VM so Plex reads local QNAP media shares without NFS overhead, reserves an NVIDIA GPU for NVENC/NVDEC hardware acceleration, and writes ephemeral transcode segments to world-writable RAM-backed `tmpfs`.
-- **Single Ingress with Forced Transcoding via Traefik**: The Plex for Apple TV app ignores its own Direct Play/Direct Stream settings and always sends `directPlay=1`, which breaks many files, while client-side "burn subtitles always" forces CPU-heavy burn-in and stuttering. Host `:32400`, Companion, DLNA, and GDM UDP discovery ports are omitted, so every client goes through Traefik, where `query-modification` middlewares (`type=modify`, rewriting only parameters the client actually sends) emulate "always transcode": `plex-force-transcode` sets `directPlay`/`directStream` to `0`, and `plex-force-sidecar-subtitles` rewrites `subtitles` (Apple TV sends `subtitles=none` because it expects to render subtitles itself during Direct Play) to `sidecar`, so the selected text track (SRT) is served as a separate subtitle file without burn-in (`segmented` returns `decision=unavailable` because the Apple TV HLS profile lists no subtitle codec). The stricter `delete`+`add` chain with `subtitles=auto` (!11–!13) broke Apple TV playback ("Something went wrong playing your media").
+- **Single Ingress with Forced Transcoding via Traefik**: The Plex for Apple TV app ignores its own Direct Play/Direct Stream settings and always sends `directPlay=1`, which breaks many files, while client-side "burn subtitles always" forces CPU-heavy burn-in and stuttering. Host `:32400`, Companion, DLNA, and GDM UDP discovery ports are omitted, so every client goes through Traefik, where `query-modification` middlewares (`type=modify`, rewriting only parameters the client actually sends) emulate "always transcode": `plex-force-transcode` sets `directPlay`/`directStream` to `0`, and `plex-force-auto-subtitles` rewrites `subtitles` (Apple TV sends `subtitles=none` because it expects to render subtitles itself during Direct Play) to `auto`, letting PMS copy the selected text track (SRT) into the MKV-segmented HLS stream that the Apple TV declares in `X-Plex-Client-Profile-Extra` (`protocol=hls&container=mkv&subtitleCodec=...,srt,...`), without burn-in (`segmented` and `sidecar` return `decision=unavailable` because that profile only declares in-container subtitles). The stricter `delete`+`add` chain on decision/start (!11–!13), which injected parameters into requests that never carried them, broke Apple TV playback ("Something went wrong playing your media").
 - **Curated Shares vs Automated Request Libraries**: Separates curated QNAP media shares (`/multimedia/*`) from the shared `/torrent` hierarchy where Seerr, Radarr, and Sonarr provision automated `/torrent/requests/*` libraries.
 - **Native Plex.tv Authentication**: Authenticates web, TV, and mobile apps directly via Plex.tv accounts and tokens, intentionally omitting Authelia forward-auth on `plex-router` so native Plex clients connect unimpeded.
 
